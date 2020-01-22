@@ -18,24 +18,27 @@ import { GraphQLScalarType, isScalarType } from './definition';
 const MAX_INT = 2147483647;
 const MIN_INT = -2147483648;
 
-function serializeInt(value: mixed): number {
-  if (typeof value === 'boolean') {
-    return value ? 1 : 0;
+function serializeInt(outputValue: mixed): number {
+  const coercedValue = serializeObject(outputValue);
+
+  if (typeof coercedValue === 'boolean') {
+    return coercedValue ? 1 : 0;
   }
 
-  let num = value;
-  if (typeof value === 'string' && value !== '') {
-    num = Number(value);
+  let num = coercedValue;
+  if (typeof coercedValue === 'string' && coercedValue !== '') {
+    num = Number(coercedValue);
   }
 
   if (!isInteger(num)) {
     throw new TypeError(
-      `Int cannot represent non-integer value: ${inspect(value)}`,
+      `Int cannot represent non-integer value: ${inspect(coercedValue)}`,
     );
   }
   if (num > MAX_INT || num < MIN_INT) {
     throw new TypeError(
-      `Int cannot represent non 32-bit signed integer value: ${inspect(value)}`,
+      'Int cannot represent non 32-bit signed integer value: ' +
+        inspect(coercedValue),
     );
   }
   return num;
@@ -72,18 +75,21 @@ export const GraphQLInt = new GraphQLScalarType({
   },
 });
 
-function serializeFloat(value: mixed): number {
-  if (typeof value === 'boolean') {
-    return value ? 1 : 0;
+function serializeFloat(outputValue: mixed): number {
+  const coercedValue = serializeObject(outputValue);
+
+  if (typeof coercedValue === 'boolean') {
+    return coercedValue ? 1 : 0;
   }
 
-  let num = value;
-  if (typeof value === 'string' && value !== '') {
-    num = Number(value);
+  let num = coercedValue;
+  if (typeof coercedValue === 'string' && coercedValue !== '') {
+    num = Number(coercedValue);
   }
+
   if (!isFinite(num)) {
     throw new TypeError(
-      `Float cannot represent non numeric value: ${inspect(value)}`,
+      `Float cannot represent non numeric value: ${inspect(coercedValue)}`,
     );
   }
   return num;
@@ -167,15 +173,17 @@ export const GraphQLString = new GraphQLScalarType({
   },
 });
 
-function serializeBoolean(value: mixed): boolean {
-  if (typeof value === 'boolean') {
-    return value;
+function serializeBoolean(outputValue: mixed): boolean {
+  const coercedValue = serializeObject(outputValue);
+
+  if (typeof coercedValue === 'boolean') {
+    return coercedValue;
   }
-  if (isFinite(value)) {
-    return value !== 0;
+  if (isFinite(coercedValue)) {
+    return coercedValue !== 0;
   }
   throw new TypeError(
-    `Boolean cannot represent a non boolean value: ${inspect(value)}`,
+    `Boolean cannot represent a non boolean value: ${inspect(coercedValue)}`,
   );
 }
 
